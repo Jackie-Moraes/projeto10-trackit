@@ -1,24 +1,53 @@
 import React from "react";
 import styled from "styled-components";
 import Image from "../assets/logo.png";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function Register() {
+    const URL = "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/auth/sign-up"
+
+    const [email, setEmail] = useState("");
+    const [name, setName] = useState("");
+    const [password, setPassword] = useState("");
+    const [image, setImage] = useState("");
 
     const navigator = useNavigate();
+
+    function validateData(e) {
+        e.preventDefault();
+
+        const promise = axios.post(URL, {
+            email,
+            name,
+            image,
+            password
+        });
+
+        promise.catch(error => {
+            console.log(error.response);
+            alert("Erro!");
+        });
+
+        promise.then(data => {
+            alert("Sucesso!")
+            navigator("/");
+        })
+    }
 
     return (
         <InfoScreen>
             <img src={Image}/>
             <h1>TrackIt</h1>
 
-            <forms onSubmit="">
-                <input required placeholder="email"></input>
-                <input required placeholder="senha"></input>
-                <input required placeholder="nome"></input>
-                <input required placeholder="foto"></input>
+            <form onSubmit={validateData}>
+                <input required placeholder="email" type="email" onChange={e => setEmail(e.target.value)}></input>
+                <input required placeholder="senha" type="password" onChange={e => setName(e.target.value)}></input>
+                <input required placeholder="nome" type="text" onChange={e => setPassword(e.target.value)}></input>
+                <input required placeholder="foto" type="url" onChange={e => setImage(e.target.value)}></input>
                 <button type="submit">Registrar</button>
-            </forms>
+            </form>
 
             <h6 onClick={() => navigator("/")}>Já tem uma conta? Faça login!</h6>
         </InfoScreen>
@@ -30,6 +59,7 @@ const InfoScreen = styled.main`
 width: 100vw;
 height: 100vh;
 
+background: #FFFFFF;
 display: flex;
 align-items: center;
 flex-direction: column;
@@ -47,7 +77,7 @@ h6 {
     text-decoration: underline;
 }
 
-forms {
+form {
     display: flex;
     justify-content: center;
     align-items: center;
