@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import Image from "../assets/logo.png"
+import Image from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
 
 export default function Menu() {
@@ -25,7 +25,7 @@ export default function Menu() {
                 <button type="submit">Entrar</button>
             </forms>
 
-            <h6>Não tem uma conta? Cadastre-se!</h6>
+            <h6 onClick={() => navigator("/cadastro")}>Não tem uma conta? Cadastre-se!</h6>
         </Login>
     )
 }
@@ -35,7 +35,6 @@ width: 100vw;
 height: 100vh;
 
 display: flex;
-justify-content: center;
 align-items: center;
 flex-direction: column;
 
@@ -84,6 +83,7 @@ button {
 }
 
 img {
+    margin-top: 40px;
     max-width: 200px;
     max-height: 100px;
 }
