@@ -22,7 +22,7 @@ export default function Menu() {
             <forms onSubmit={validateLogin}>
                 <input required placeholder="email"></input>
                 <input required placeholder="senha"></input>
-                <button type="submit">Entrar</button>
+                <button type="submit" onClick={() => navigator("/habitos")}>Entrar</button>
             </forms>
 
             <h6 onClick={() => navigator("/cadastro")}>Não tem uma conta? Cadastre-se!</h6>
