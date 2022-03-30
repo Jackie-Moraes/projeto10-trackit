@@ -1,11 +1,17 @@
 import React from "react";
 import styled from "styled-components";
+import { useContext } from "react";
+
+import UserContext from "./../contexts/UserContext"
 
 export default function Header() {
+    const {userInfo} = useContext(UserContext);
+    const {name, image, email, token} = userInfo;
+
     return (
         <Top>
             <h2>TrackIt</h2>
-            <img src="https://yt3.ggpht.com/ytc/AKedOLT2y4hkt_FsZMoIkho6Vn8jFfGacOYxi2XkvuXL=s900-c-k-c0x00ffffff-no-rj" />
+            <img src={image} />
         </Top>
     )
 }

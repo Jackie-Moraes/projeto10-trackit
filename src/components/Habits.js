@@ -1,18 +1,25 @@
 import styled from "styled-components";
 import axios from "axios";
-import { useState } from "react";
+import { useState, useContext, useEffect } from "react";
 
 import Header from "./Header";
 import Footer from "./Footer";
+import UserContext from "./../contexts/UserContext"
+import Trash from "./../assets/trash-outline.svg";
 
 export default function Habits() {
-
     const CreateHabitsURL = "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits";
+    const GetHabitsURL = "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits"
+
+    const { userInfo } = useContext(UserContext);
+    const { token } = userInfo;
 
     const [hasHabits, setHasHabits] = useState(false);
     const [creatingHabits, setCreatingHabits] = useState(false);
-
     const [habitName, setHabitName] = useState("");
+    const [selectedDays, setSelectedDays] = useState([]);
+    const [userHabits, setUserHabits] = useState([]);
+    const [refresh, setRefresh] = useState(0);
 
     const days = [
         "D",
@@ -24,15 +31,39 @@ export default function Habits() {
         "S"
     ]
 
-    const [selectedDays, setSelectedDays] = useState([]);
+    const userConfig = {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    }
+
+    useEffect(() => {
+        const promise = axios.get(GetHabitsURL, userConfig);
+
+        promise.catch(err => {
+            console.log(err.response);
+            alert("Opa, deu ruim.")
+        })
+
+        promise.then(response => {
+            console.log(response.data);
+            
+            if (response.data.length > 0) {
+            setHasHabits(true);
+            setUserHabits(response.data);
+            } else {
+                setHasHabits(false);
+            }
+        })
+    }, [refresh])
 
     function sendHabits(e) {
         e.preventDefault();
 
         const promise = axios.post(CreateHabitsURL, {
-         name: habitName,
-         days: selectedDays   
-        })
+            name: habitName,
+            days: selectedDays
+        }, userConfig);
 
         promise.catch(err => {
             console.log(habitName)
@@ -46,6 +77,24 @@ export default function Habits() {
             console.log(data)
             setCreatingHabits(false)
             setSelectedDays([])
+            setRefresh(refresh + 1)
+        })
+    }
+
+    function deleteHabit(id) {
+        const DeleteURL = `https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits/${id}`
+
+        const promise = axios.delete(DeleteURL, userConfig);
+
+        promise.catch(err => {
+            console.log(err);
+            alert("Uepa, deu ruim.")
+        })
+
+        promise.then(response =>  {
+            console.log(response)
+            console.log("Deletado com sucesso!")
+            setRefresh(refresh + 1)
         })
     }
 
@@ -60,7 +109,7 @@ export default function Habits() {
                 </CreateHabits>
 
                 {creatingHabits ?
-                    <HabitMenu >
+                    <HabitMenuCreation>
                         <form onSubmit={sendHabits}>
                             <input required placeholder="nome do hábito" onChange={e => setHabitName(e.target.value)}></input>
                             <Weekdays>
@@ -68,7 +117,7 @@ export default function Habits() {
                                     return (
                                         <div key={id} onClick={() => {
                                             setSelectedDays([...selectedDays, id])
-                                        }} style={selectedDays.includes(id) ? {backgroundColor: "#CFCFCF", color: "#FFFFFF"} : {}}>{day}</div>
+                                        }} style={selectedDays.includes(id) ? { backgroundColor: "#CFCFCF", color: "#FFFFFF" } : {}}>{day}</div>
                                     )
                                 })}
                             </Weekdays>
@@ -77,8 +126,26 @@ export default function Habits() {
                                 <Salvar type="submit">Salvar</Salvar>
                             </End>
                         </form>
-                    </HabitMenu> : ""}
-                {hasHabits ? "" : <span>Você não tem nenhum hábito cadastrado ainda. Adicione um hábito para começar a trackear!</span>}
+                    </HabitMenuCreation> : ""}
+
+
+                {hasHabits ? userHabits.map((habit) => {
+                    const {name} = habit
+                    return (
+                        <HabitMenu key={habit.id}>
+                            <span>{name}</span>
+                            <img src={Trash} onClick={() => deleteHabit(habit.id)} />
+
+                            <Weekdays>
+                                {days.map((day, id) => {
+                                    return (
+                                        <div key={id} style={habit.days.includes(id) ? { backgroundColor: "#CFCFCF", color: "#FFFFFF" } : {}}>{day}</div>
+                                    )
+                                })}
+                            </Weekdays>
+                        </HabitMenu>
+                    )
+                }) : <span>Você não tem nenhum hábito cadastrado ainda. Adicione um hábito para começar a trackear!</span>}
             </MyHabits >
 
             <Footer />
@@ -127,7 +194,7 @@ button {
     text-align: center;
 }`
 
-const HabitMenu = styled.section`
+const HabitMenuCreation = styled.section`
 position: relative;
 
 width: 340px;
@@ -136,6 +203,12 @@ background: #FFFFFF;
 border-radius: 5px;
 margin-bottom: 20px;
 padding: 10px 20px;
+
+span {
+    font-weight: 400;
+    font-size: 20px;
+    color: #666666;
+}
 
 input {
     width: 100%;
@@ -155,7 +228,8 @@ text-align: center;
 
 div {
     width: 25px;
-    margin: 5px 3px 0 0;
+    height: 23px;
+    margin: 10px 3px 0 0;
     color: #DBDBDB;
     background: #FFFFFF;
     border: 1px solid #D5D5D5;
@@ -189,3 +263,25 @@ const Salvar = styled.button`
     border-radius: 5px;
     color: #FFFFFF;
 `
+
+const HabitMenu = styled.section`
+position: relative;
+
+width: 340px;
+height: 80px;
+background: #FFFFFF;
+border-radius: 5px;
+margin-bottom: 20px;
+padding: 10px 20px;
+
+img {
+    position: absolute;
+    right: 10px;
+    max-width: 20px;
+}
+
+span {
+    font-weight: 400;
+    font-size: 20px;
+    color: #666666;
+}`
