@@ -1,6 +1,7 @@
 import React from "react";
-import Header from "./Header";
 import styled from "styled-components";
+
+import Header from "./Header";
 import Footer from "./Footer";
 
 export default function Habits() {
@@ -11,6 +12,7 @@ export default function Habits() {
     return (
         <>
         <Header />
+
         <MyHabits >
             <CreateHabits>
                 <h3>Meus hábitos</h3>
@@ -37,6 +39,7 @@ export default function Habits() {
                 </HabitMenu> : ""}
             {hasHabits ? "" : <span>Você não tem nenhum hábito cadastrado ainda. Adicione um hábito para começar a trackear!</span>}
         </MyHabits >
+
         <Footer />
         </>
     )

@@ -34,6 +34,7 @@ const Login = styled.main`
 width: 100vw;
 height: 100vh;
 
+background: #FFFFFF;
 display: flex;
 align-items: center;
 flex-direction: column;

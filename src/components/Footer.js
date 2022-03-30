@@ -1,11 +1,16 @@
 import React from "react";
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
 
 export default function Footer() {
+
+    const navigator = useNavigate();
+
     return (
         <Bottom>
-            <button>Hábitos</button>
-            <button>Histórico</button>
+            <button onClick={() => navigator("/habitos")}>Hábitos</button>
+            <button onClick={() => navigator("/hoje")}>Hoje</button>
+            <button onClick={() => navigator("/historico")}>Histórico</button>
         </Bottom>
     )
 }
@@ -30,6 +35,6 @@ button {
     border-radius: 5px;
     color: #52B6FF;
     background: #FFFFFF;
-    margin-bottom: 22px;
+    margin-bottom: 10px;
 }
 `

@@ -5,6 +5,8 @@ import GlobalStyle from "./components/Normalize"
 import Menu from "./components/Menu"
 import Register from "./components/Register"
 import Habits from "./components/Habits"
+import Today from "./components/Today"
+import History from "./components/History.js"
 
 export default function App() {
     return (
@@ -14,6 +16,8 @@ export default function App() {
                 <Route path="/" element={<Menu />} />
                 <Route path="/cadastro" element={<Register />} />
                 <Route path="/habitos" element={<Habits />} />
+                <Route path="/hoje" element={<Today />} />
+                <Route path="/historico" element={<History />} />
             </Routes>
         </BrowserRouter>
     )

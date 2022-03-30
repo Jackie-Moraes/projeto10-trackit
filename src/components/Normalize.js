@@ -17,6 +17,7 @@ html {
 
 body {
   margin: 0;
+  background: #F2F2F2;
 }
 
 main {
