@@ -1,46 +1,87 @@
-import React from "react";
 import styled from "styled-components";
+import axios from "axios";
+import { useState } from "react";
 
 import Header from "./Header";
 import Footer from "./Footer";
 
 export default function Habits() {
 
-    const [hasHabits, setHasHabits] = React.useState(false);
-    const [creatingHabits, setCreatingHabits] = React.useState(false);
+    const CreateHabitsURL = "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits";
+
+    const [hasHabits, setHasHabits] = useState(false);
+    const [creatingHabits, setCreatingHabits] = useState(false);
+
+    const [habitName, setHabitName] = useState("");
+
+    const days = [
+        "D",
+        "S",
+        "T",
+        "Q",
+        "Q",
+        "S",
+        "S"
+    ]
+
+    const [selectedDays, setSelectedDays] = useState([]);
+
+    function sendHabits(e) {
+        e.preventDefault();
+
+        const promise = axios.post(CreateHabitsURL, {
+         name: habitName,
+         days: selectedDays   
+        })
+
+        promise.catch(err => {
+            console.log(habitName)
+            console.log(selectedDays)
+            console.log(err)
+            alert("Deu pau")
+            setSelectedDays([])
+        })
+
+        promise.then(data => {
+            console.log(data)
+            setCreatingHabits(false)
+            setSelectedDays([])
+        })
+    }
 
     return (
         <>
-        <Header />
+            <Header />
 
-        <MyHabits >
-            <CreateHabits>
-                <h3>Meus hábitos</h3>
-                <button onClick={() => setCreatingHabits(true)}>+</button>
-            </CreateHabits>
+            <MyHabits >
+                <CreateHabits>
+                    <h3>Meus hábitos</h3>
+                    <button onClick={() => setCreatingHabits(true)}>+</button>
+                </CreateHabits>
 
-            {creatingHabits ? 
-                <HabitMenu >
-                    <input required placeholder="nome do hábito"></input>
-                    <Weekdays>
-                        <button>D</button>
-                        <button>S</button>
-                        <button>T</button>
-                        <button>Q</button>
-                        <button>Q</button>
-                        <button>S</button>
-                        <button>S</button>
-                    </Weekdays>
+                {creatingHabits ?
+                    <HabitMenu >
+                        <form onSubmit={sendHabits}>
+                            <input required placeholder="nome do hábito" onChange={e => setHabitName(e.target.value)}></input>
+                            <Weekdays>
+                                {days.map((day, id) => {
+                                    return (
+                                        <div key={id} onClick={() => {
+                                            setSelectedDays([...selectedDays, id])
+                                        }} style={selectedDays.includes(id) ? {backgroundColor: "#CFCFCF", color: "#FFFFFF"} : {}}>{day}</div>
+                                    )
+                                })}
+                            </Weekdays>
+                            <End>
+                                <Cancelar onClick={() => setCreatingHabits(false)}>Cancelar</Cancelar>
+                                <Salvar type="submit">Salvar</Salvar>
+                            </End>
+                        </form>
+                    </HabitMenu> : ""}
+                {hasHabits ? "" : <span>Você não tem nenhum hábito cadastrado ainda. Adicione um hábito para começar a trackear!</span>}
+            </MyHabits >
 
-                    <End>
-                        <Cancelar onClick={() => setCreatingHabits(false)}>Cancelar</Cancelar>
-                        <Salvar onClick={() => setCreatingHabits(false)}>Salvar</Salvar>
-                    </End>
-                </HabitMenu> : ""}
-            {hasHabits ? "" : <span>Você não tem nenhum hábito cadastrado ainda. Adicione um hábito para começar a trackear!</span>}
-        </MyHabits >
-
-        <Footer />
+            <Footer />
         </>
     )
 }
@@ -109,7 +150,10 @@ input::placeholder {
 `
 
 const Weekdays = styled.div`
-button {
+display: flex;
+text-align: center;
+
+div {
     width: 25px;
     margin: 5px 3px 0 0;
     color: #DBDBDB;
