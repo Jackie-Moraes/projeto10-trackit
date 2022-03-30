@@ -23,6 +23,8 @@ align-items: center;
 position: fixed;
 padding: 10px;
 
+top: 0;
+
 h2 {
     font-family: 'Playball', cursive;
     color: #FFFFFF;
