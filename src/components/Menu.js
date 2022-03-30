@@ -2,16 +2,37 @@ import React from "react";
 import styled from "styled-components";
 import Image from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useState, useContext } from "react";
+
+import UserContext from "../contexts/UserContext";
 
 export default function Menu() {
+    const URL = "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/auth/login"
 
-    const [email, setEmail] = React.useState("");
-    const [password, setPassword] = React.useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const {setUserInfo} = useContext(UserContext);
 
     const navigator = useNavigate();
 
-    function validateLogin() {
-        navigator("/cadastro")
+    function validateLogin(e) {
+        e.preventDefault();
+
+        const promise = axios.post(URL, {
+            email,
+            password
+        });
+
+        promise.catch(error => {
+            alert(error.response.data.message);
+        });
+
+        promise.then(response => {
+            const {name, image, email, token} = response.data;
+            setUserInfo({name: name, image: image, email: email, token: token})
+            navigator("/hoje");
+        })
     }
 
     return (
@@ -19,11 +40,11 @@ export default function Menu() {
             <img src={Image}/>
             <h1>TrackIt</h1>
 
-            <forms onSubmit={validateLogin}>
-                <input required placeholder="email"></input>
-                <input required placeholder="senha"></input>
-                <button type="submit" onClick={() => navigator("/habitos")}>Entrar</button>
-            </forms>
+            <form onSubmit={validateLogin}>
+                <input required placeholder="email" type="email" onChange={e => setEmail(e.target.value)}></input>
+                <input required placeholder="senha" type="password" onChange={e => setPassword(e.target.value)}></input>
+                <button type="submit">Entrar</button>
+            </form>
 
             <h6 onClick={() => navigator("/cadastro")}>Não tem uma conta? Cadastre-se!</h6>
         </Login>
@@ -52,7 +73,7 @@ h6 {
     text-decoration: underline;
 }
 
-forms {
+form {
     display: flex;
     justify-content: center;
     align-items: center;

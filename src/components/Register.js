@@ -31,6 +31,7 @@ export default function Register() {
         });
 
         promise.then(data => {
+            console.log(data);
             alert("Sucesso!")
             navigator("/");
         })
@@ -43,8 +44,8 @@ export default function Register() {
 
             <form onSubmit={validateData}>
                 <input required placeholder="email" type="email" onChange={e => setEmail(e.target.value)}></input>
-                <input required placeholder="senha" type="password" onChange={e => setName(e.target.value)}></input>
-                <input required placeholder="nome" type="text" onChange={e => setPassword(e.target.value)}></input>
+                <input required placeholder="senha" type="password" onChange={e => setPassword(e.target.value)}></input>
+                <input required placeholder="nome" type="text" onChange={e => setName(e.target.value)}></input>
                 <input required placeholder="foto" type="url" onChange={e => setImage(e.target.value)}></input>
                 <button type="submit">Registrar</button>
             </form>
