@@ -1,41 +1,123 @@
-import React from "react";
 import styled from "styled-components";
+import { useState, useContext, useEffect } from "react";
+import axios from "axios";
+import * as dayjs from 'dayjs'
+import * as weekday from "dayjs/plugin/weekday"
+import * as isLeapYear from 'dayjs/plugin/isLeapYear'
+import "dayjs/locale/pt-br"
 
 import Header from "./Header";
 import Footer from "./Footer";
+import UserContext from "./../contexts/UserContext"
+import { weekdays } from "dayjs/locale/pt-br";
 
 export default function Today() {
+    const GetHabitsURL = "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits/today";
+
+    dayjs.extend(isLeapYear);
+    dayjs.locale('pt-br');
+    dayjs.extend(weekday);
+    const data = dayjs().format('DD/MM');
+    const day = dayjs().weekday()
+    const days = [
+        "Domingo",
+        "Segunda",
+        "Terça",
+        "Quarta",
+        "Quinta",
+        "Sexta",
+        "Sábado",
+    ]
+
+    const { userInfo } = useContext(UserContext);
+    const { token } = userInfo;
+
+    const userConfig = {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    }
+
+    const [refresh, setRefresh] = useState(0)
+    const [hasHabits, setHasHabits] = useState(false);
+    const [todayHabits, setTodayHabits] = useState([]);
+
+    useEffect(() => {
+        const promise = axios.get(GetHabitsURL, userConfig);
+
+        promise.catch(err => {
+            console.log(err);
+            alert("Deu ruim");
+        })
+
+        promise.then(response => {
+            setTodayHabits(response.data)
+            setHasHabits(true);
+        })
+    }, [refresh])
+
+    function markDone(id) {
+        const DONE_URL = `https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits/${id}/check`;
+
+        const promise = axios.post(DONE_URL, userConfig);
+
+        promise.catch(err => {
+            console.log(err);
+            alert("Deu ruim");
+        })
+
+        promise.then(response => {
+            console.log(response.data)
+            setRefresh(refresh + 1);
+        })
+    }
+
+    function removeDone(id) {
+        const REMOVE_URL = `https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits/${id}/uncheck`
+        
+        const promise = axios.post(REMOVE_URL, userConfig);
+
+        promise.catch(err => {
+            console.log(err);
+            alert("Deu ruim");
+        })
+
+        promise.then(response => {
+            console.log(response.data)
+            setRefresh(refresh + 1);
+        })
+    }
+
     return (
         <>
         <Header />
 
         <Date>
-            <h3>Segunda, 17/05</h3>
+            <h3>{days[day]}, {data}</h3>
             <p>Nenhum hábito concluído ainda</p>
 
-            <Habit>
-                <Info>
-                    <h4>Ler 1 capítulo de livro</h4>
-                    <p>Sequência atual: 3 dias</p>
-                    <p>Seu recorde: 5 dias</p>
-                </Info>
-                <label>
-                    <input type="checkbox"></input>
-                    <span></span>
-                </label>
-            </Habit>
 
-            <Habit>
-                <Info>
-                    <h4>Ler 1 capítulo de livro</h4>
-                    <p>Sequência atual: 3 dias</p>
-                    <p>Seu recorde: 5 dias</p>
-                </Info>
-                <label>
-                    <input type="checkbox"></input>
-                    <span></span>
-                </label>
-            </Habit>
+            {hasHabits ? todayHabits.map((habit, id) => {
+                return (
+                    <Habit key={id}>
+                        <Info>
+                            <h4>{habit.name}</h4>
+                            <p>Sequência atual: {habit.currentSequence} dias</p>
+                            <p>Seu recorde: {habit.highestSequence} dias</p>
+                        </Info>
+                        <label>
+                            <input type="checkbox" checked={habit.done ? "checked" : ""} onChange={habit.done ? () => {
+                                removeDone(habit.id)
+                            }
+                             : () => {
+                                markDone(habit.id)
+                            }}></input>
+                            <span></span>
+                        </label>
+                    </Habit>
+                )
+            }) : ""}
+            
         </Date>
 
         <Footer />
