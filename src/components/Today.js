@@ -9,7 +9,6 @@ import "dayjs/locale/pt-br"
 import Header from "./Header";
 import Footer from "./Footer";
 import UserContext from "./../contexts/UserContext"
-import { weekdays } from "dayjs/locale/pt-br";
 
 export default function Today() {
     const GetHabitsURL = "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits/today";
@@ -59,15 +58,13 @@ export default function Today() {
     function markDone(id) {
         const DONE_URL = `https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits/${id}/check`;
 
-        const promise = axios.post(DONE_URL, userConfig);
+        const promise = axios.post(DONE_URL, {}, userConfig);
 
         promise.catch(err => {
-            console.log(err);
-            alert("Deu ruim");
+            alert("Algo deu errado! Tente novamente mais tarde.");
         })
 
         promise.then(response => {
-            console.log(response.data)
             setRefresh(refresh + 1);
         })
     }
@@ -75,15 +72,13 @@ export default function Today() {
     function removeDone(id) {
         const REMOVE_URL = `https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits/${id}/uncheck`
         
-        const promise = axios.post(REMOVE_URL, userConfig);
+        const promise = axios.post(REMOVE_URL, {}, userConfig);
 
         promise.catch(err => {
-            console.log(err);
-            alert("Deu ruim");
+            alert("Algo deu errado! Tente novamente mais tarde.");
         })
 
         promise.then(response => {
-            console.log(response.data)
             setRefresh(refresh + 1);
         })
     }
@@ -97,13 +92,13 @@ export default function Today() {
             <p>Nenhum hábito concluído ainda</p>
 
 
-            {hasHabits ? todayHabits.map((habit, id) => {
+            {hasHabits ? todayHabits.map((habit, keyid) => {
                 return (
-                    <Habit key={id}>
+                    <Habit key={keyid}>
                         <Info>
                             <h4>{habit.name}</h4>
-                            <p>Sequência atual: {habit.currentSequence} dias</p>
-                            <p>Seu recorde: {habit.highestSequence} dias</p>
+                            <span>Sequência atual:</span> <span style={habit.done ? {color: "#8FC549"} : {}}>{habit.currentSequence} dias</span><br/>
+                            <span>Seu recorde:</span> <span style={habit.currentSequence >= habit.highestSequence && habit.done ? {color: "#8FC549"} : {}}>{habit.highestSequence} dias</span>
                         </Info>
                         <label>
                             <input type="checkbox" checked={habit.done ? "checked" : ""} onChange={habit.done ? () => {
@@ -158,7 +153,6 @@ display: flex;
 align-items: center;
 justify-content: space-between;
 margin-bottom: 10px;
-
 
 label {
     user-select: none;
@@ -217,7 +211,7 @@ h4 {
     font-size: 20px;
 }
 
-p {
+span {
     margin: 0;
     font-weight: 400;
     font-size: 13px;
