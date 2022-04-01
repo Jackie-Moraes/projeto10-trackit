@@ -40,18 +40,20 @@ export default function Today() {
     const [refresh, setRefresh] = useState(0)
     const [hasHabits, setHasHabits] = useState(false);
     const [todayHabits, setTodayHabits] = useState([]);
+    const [checkedHabits, setCheckedHabits] = useState([]);
 
     useEffect(() => {
         const promise = axios.get(GetHabitsURL, userConfig);
 
         promise.catch(err => {
-            console.log(err);
-            alert("Deu ruim");
+            alert("Algo deu errado! Tente novamente mais tarde.");
         })
 
         promise.then(response => {
             setTodayHabits(response.data)
-            setHasHabits(true);
+            if (response.data.length > 0 ) {
+                setHasHabits(true)
+            }
         })
     }, [refresh])
 
@@ -83,15 +85,24 @@ export default function Today() {
         })
     }
 
+    function isDone(obj) {
+        if (obj.done) {
+            return (obj)
+        }
+    }
+
+    const filtered = todayHabits.filter(isDone)
+    const percentage = Math.round(100 / todayHabits.length * filtered.length);
+
     return (
         <>
         <Header />
 
         <Date>
             <h3>{days[day]}, {data}</h3>
-            <p>Nenhum hábito concluído ainda</p>
-
-
+            
+            {hasHabits ? (filtered.length > 0 ? <p style={{color: "#8FC549"}}>{percentage}% dos hábitos concluídos.</p> : <p>Nenhum hábito concluído ainda</p>) : <p>Você não tem hábitos para hoje.</p>}
+            
             {hasHabits ? todayHabits.map((habit, keyid) => {
                 return (
                     <Habit key={keyid}>
