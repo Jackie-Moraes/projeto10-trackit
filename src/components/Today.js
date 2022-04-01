@@ -28,7 +28,7 @@ export default function Today() {
         "Sábado",
     ]
 
-    const { userInfo } = useContext(UserContext);
+    const { userInfo, setUserInfo } = useContext(UserContext);
     const { token } = userInfo;
 
     const userConfig = {
@@ -37,10 +37,13 @@ export default function Today() {
         }
     }
 
-    const [refresh, setRefresh] = useState(0)
+    const [refresh, setRefresh] = useState(0);
     const [hasHabits, setHasHabits] = useState(false);
     const [todayHabits, setTodayHabits] = useState([]);
-    const [checkedHabits, setCheckedHabits] = useState([]);
+    const [percentageDone, setPercentageDone] = useState(0);
+
+    const filtered = todayHabits.filter(isDone)
+    const percentage = Math.round(100 / todayHabits.length * filtered.length);
 
     useEffect(() => {
         const promise = axios.get(GetHabitsURL, userConfig);
@@ -53,9 +56,14 @@ export default function Today() {
             setTodayHabits(response.data)
             if (response.data.length > 0 ) {
                 setHasHabits(true)
+                setPercentageDone(percentage);
             }
         })
     }, [refresh])
+
+    useEffect(() => {
+        setUserInfo({...userInfo, percentage: percentage})
+    }, [percentageDone])
 
     function markDone(id) {
         const DONE_URL = `https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits/${id}/check`;
@@ -90,9 +98,6 @@ export default function Today() {
             return (obj)
         }
     }
-
-    const filtered = todayHabits.filter(isDone)
-    const percentage = Math.round(100 / todayHabits.length * filtered.length);
 
     return (
         <>

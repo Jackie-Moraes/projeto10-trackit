@@ -16,10 +16,11 @@ export default function App() {
         image: "",
         email: "",
         token: "",
+        percentage: "",
     })
 
     const totalInfo = {userInfo, setUserInfo};
-
+    
     return (
         <UserContext.Provider value={totalInfo}>
             <BrowserRouter>

@@ -12,7 +12,7 @@ export default function Menu() {
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const {setUserInfo} = useContext(UserContext);
+    const {userInfo, setUserInfo} = useContext(UserContext);
 
     const navigator = useNavigate();
 
@@ -30,7 +30,7 @@ export default function Menu() {
 
         promise.then(response => {
             const {name, image, email, token} = response.data;
-            setUserInfo({name: name, image: image, email: email, token: token})
+            setUserInfo({...userInfo, name: name, image: image, email: email, token: token})
             navigator("/hoje");
         })
     }
