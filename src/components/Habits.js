@@ -7,6 +7,8 @@ import Footer from "./Footer";
 import UserContext from "./../contexts/UserContext"
 import Trash from "./../assets/trash-outline.svg";
 
+import Loader from "react-loader-spinner";
+
 export default function Habits() {
     const CreateHabitsURL = "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits";
     const GetHabitsURL = "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits"
@@ -20,6 +22,7 @@ export default function Habits() {
     const [selectedDays, setSelectedDays] = useState([]);
     const [userHabits, setUserHabits] = useState([]);
     const [refresh, setRefresh] = useState(0);
+    const [disabled, setDisabled] = useState(false);
 
     const days = [
         "D",
@@ -54,9 +57,13 @@ export default function Habits() {
         })
     }, [refresh])
 
-    function sendHabits(e) {
+    function blockAndLoad(e) {
         e.preventDefault();
+        setDisabled(true);
+        sendHabits();
+    }
 
+    function sendHabits() {
         const promise = axios.post(CreateHabitsURL, {
             name: habitName,
             days: selectedDays
@@ -65,11 +72,13 @@ export default function Habits() {
         promise.catch(err => {
             alert("Algo deu errado! Tente novamente mais tarde.")
             setSelectedDays([])
+            setDisabled(false)
         })
 
         promise.then(data => {
             setCreatingHabits(false)
             setSelectedDays([])
+            setDisabled(false)
             setRefresh(refresh + 1)
         })
     }
@@ -104,7 +113,7 @@ export default function Habits() {
 
                 {creatingHabits ?
                     <HabitMenuCreation>
-                        <form onSubmit={sendHabits}>
+                        <form onSubmit={blockAndLoad} style={disabled ? {opacity: '0.5'} : {}} disabled={disabled ? "disabled" : ""}>
                             <input required placeholder="nome do hábito" onChange={e => setHabitName(e.target.value)}></input>
                             <Weekdays>
                                 {days.map((day, id) => {
@@ -117,7 +126,7 @@ export default function Habits() {
                             </Weekdays>
                             <End>
                                 <Cancelar onClick={() => setCreatingHabits(false)}>Cancelar</Cancelar>
-                                <Salvar type="submit">Salvar</Salvar>
+                                <Salvar type="submit">{disabled ? <Loader type="Hearts" color="white" height={35} width={50} /> : "Salvar"}</Salvar>
                             </End>
                         </form>
                     </HabitMenuCreation> : ""}
@@ -149,11 +158,11 @@ export default function Habits() {
 
 const MyHabits = styled.main`
 width: 100vw;
-height: calc(100vh - 145px);
+height: calc(100vh-55px);
 background: #F2F2F2;
 
 margin-top: 55px;
-margin-bottom: 90px;
+margin-bottom: 75px;
 padding: 20px;
 
 span {

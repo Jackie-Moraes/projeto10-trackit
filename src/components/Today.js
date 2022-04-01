@@ -139,7 +139,7 @@ export default function Today() {
 
 const Date = styled.main`
 width: 100vw;
-height: calc(100vh - 145px);
+height: calc(100vh-55px);
 background: #F2F2F2;
 
 margin-top: 55px;

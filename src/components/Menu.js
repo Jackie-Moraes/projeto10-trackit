@@ -4,6 +4,7 @@ import Image from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useState, useContext } from "react";
+import Loader from "react-loader-spinner";
 
 import UserContext from "../contexts/UserContext";
 
@@ -13,12 +14,17 @@ export default function Menu() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const {userInfo, setUserInfo} = useContext(UserContext);
+    const [disabled, setDisabled] = useState(false);
 
     const navigator = useNavigate();
 
-    function validateLogin(e) {
+    function blockAndLoad(e) {
         e.preventDefault();
+        setDisabled(true);
+        validateLogin();
+    }
 
+    function validateLogin() {
         const promise = axios.post(URL, {
             email,
             password
@@ -26,11 +32,13 @@ export default function Menu() {
 
         promise.catch(error => {
             alert(error.response.data.message);
+            setDisabled(false);
         });
 
         promise.then(response => {
             const {name, image, email, token} = response.data;
             setUserInfo({...userInfo, name: name, image: image, email: email, token: token})
+            setDisabled(false)
             navigator("/hoje");
         })
     }
@@ -40,10 +48,11 @@ export default function Menu() {
             <img src={Image}/>
             <h1>TrackIt</h1>
 
-            <form onSubmit={validateLogin}>
+            <form onSubmit={blockAndLoad} style={disabled ? {opacity: '0.5'} : {}} disabled={disabled ? "disabled" : ""}>
                 <input required placeholder="email" type="email" onChange={e => setEmail(e.target.value)}></input>
                 <input required placeholder="senha" type="password" onChange={e => setPassword(e.target.value)}></input>
-                <button type="submit">Entrar</button>
+                <button type="submit" >{disabled ? <Loader type="Hearts" color="white" height={35} width={150} /> : "Entrar"}</button>
+                
             </form>
 
             <h6 onClick={() => navigator("/cadastro")}>Não tem uma conta? Cadastre-se!</h6>

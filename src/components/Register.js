@@ -4,6 +4,7 @@ import Image from "../assets/logo.png";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Loader from "react-loader-spinner";
 
 export default function Register() {
     const URL = "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/auth/sign-up"
@@ -12,12 +13,18 @@ export default function Register() {
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
     const [image, setImage] = useState("");
+    
+    const [disabled, setDisabled] = useState(false);
 
     const navigator = useNavigate();
 
-    function validateData(e) {
+    function blockAndLoad(e) {
         e.preventDefault();
+        setDisabled(true);
+        validateData();
+    }
 
+    function validateData() {
         const promise = axios.post(URL, {
             email,
             name,
@@ -27,10 +34,12 @@ export default function Register() {
 
         promise.catch(error => {
             alert("Algo deu errado! Tente novamente mais tarde.");
+            setDisabled(false)
         });
 
         promise.then(data => {
             alert("Sucesso ao criar a conta!")
+            setDisabled(false)
             navigator("/");
         })
     }
@@ -40,12 +49,12 @@ export default function Register() {
             <img src={Image}/>
             <h1>TrackIt</h1>
 
-            <form onSubmit={validateData}>
+            <form onSubmit={blockAndLoad} style={disabled ? {opacity: '0.5'} : {}} disabled={disabled ? "disabled" : ""}>
                 <input required placeholder="email" type="email" onChange={e => setEmail(e.target.value)}></input>
                 <input required placeholder="senha" type="password" onChange={e => setPassword(e.target.value)}></input>
                 <input required placeholder="nome" type="text" onChange={e => setName(e.target.value)}></input>
                 <input required placeholder="foto" type="url" onChange={e => setImage(e.target.value)}></input>
-                <button type="submit">Registrar</button>
+                <button type="submit">{disabled ? <Loader type="Hearts" color="white" height={35} width={150} /> : "Registrar"}</button>
             </form>
 
             <h6 onClick={() => navigator("/")}>Já tem uma conta? Faça login!</h6>
