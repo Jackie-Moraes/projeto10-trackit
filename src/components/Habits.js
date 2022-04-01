@@ -41,16 +41,13 @@ export default function Habits() {
         const promise = axios.get(GetHabitsURL, userConfig);
 
         promise.catch(err => {
-            console.log(err.response);
-            alert("Opa, deu ruim.")
+            alert("Algo deu errado! Tente novamente mais tarde.")
         })
 
         promise.then(response => {
-            console.log(response.data);
-            
             if (response.data.length > 0) {
-            setHasHabits(true);
-            setUserHabits(response.data);
+                setHasHabits(true);
+                setUserHabits(response.data);
             } else {
                 setHasHabits(false);
             }
@@ -66,36 +63,33 @@ export default function Habits() {
         }, userConfig);
 
         promise.catch(err => {
-            console.log(habitName)
-            console.log(selectedDays)
-            console.log(err)
-            alert("Deu pau")
+            alert("Algo deu errado! Tente novamente mais tarde.")
             setSelectedDays([])
         })
 
         promise.then(data => {
-            console.log(data)
             setCreatingHabits(false)
             setSelectedDays([])
             setRefresh(refresh + 1)
         })
     }
 
-    function deleteHabit(id) {
+    function deleteHabit(id, name) {
         const DeleteURL = `https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits/${id}`
 
-        const promise = axios.delete(DeleteURL, userConfig);
+        const confirm = window.confirm(`Deseja excluir o hábito "${name}"?`)
 
-        promise.catch(err => {
-            console.log(err);
-            alert("Uepa, deu ruim.")
-        })
+        if (confirm) {
+            const promise = axios.delete(DeleteURL, userConfig);
 
-        promise.then(response =>  {
-            console.log(response)
-            console.log("Deletado com sucesso!")
-            setRefresh(refresh + 1)
-        })
+            promise.catch(err => {
+                alert("Algo deu errado! Tente novamente mais tarde.")
+            })
+
+            promise.then(response => {
+                setRefresh(refresh + 1)
+            })
+        }
     }
 
     return (
@@ -130,11 +124,11 @@ export default function Habits() {
 
 
                 {hasHabits ? userHabits.map((habit) => {
-                    const {name} = habit
+                    const { name } = habit
                     return (
                         <HabitMenu key={habit.id}>
                             <span>{name}</span>
-                            <img src={Trash} onClick={() => deleteHabit(habit.id)} />
+                            <img src={Trash} onClick={() => deleteHabit(habit.id, name)} />
 
                             <Weekdays>
                                 {days.map((day, id) => {

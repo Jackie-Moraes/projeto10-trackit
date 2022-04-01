@@ -26,13 +26,11 @@ export default function Register() {
         });
 
         promise.catch(error => {
-            console.log(error.response);
-            alert("Erro!");
+            alert("Algo deu errado! Tente novamente mais tarde.");
         });
 
         promise.then(data => {
-            console.log(data);
-            alert("Sucesso!")
+            alert("Sucesso ao criar a conta!")
             navigator("/");
         })
     }
